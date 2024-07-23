@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/ninox-d_gotmpl
+*ninox-d_gotmpl.so
+*ninox-d_gotmpl.dylib
+*ninox-d_gotmpl.dll
+*ninox-d_gotmpl.a
+*ninox-d_gotmpl.lib
+*ninox-d_gotmpl-test-*
+*.exe
+*.pdb
+*.o
+*.obj
+*.lst
