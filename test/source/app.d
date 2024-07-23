@@ -88,6 +88,12 @@ Test[] testEval() {
             result: "Joe",
         ),
         Test(
+            name: "testEval_fieldOnNil",
+            content: "{{.name}}",
+            data: Variant(),
+            result: "<Uninitialized Variant>",
+        ),
+        Test(
             name: "testEval_nestedField",
             content: "{{.job.name}}",
             data: Variant(Person( job: Job("Teacher") )),

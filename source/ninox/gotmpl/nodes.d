@@ -225,6 +225,9 @@ class FieldExpr : Expr {
     override Variant evaluate(ref Context ctx) const {
         Variant v = base !is null ? base.evaluate(ctx) : ctx.self;
         foreach (ref name; this.names) {
+            if (!v.hasValue) {
+                break;
+            }
             if (cast(TypeInfo_Delegate) v.type) {
                 v = v();
             }
@@ -525,7 +528,7 @@ class Command {
 
         Variant arg0 = this.args[0].evaluate(ctx);
         if (!arg0.hasValue) {
-            throw new ExecuteTemplateException("Argument 0 has no value!");
+            return Variant();
         }
 
         if (arg0.isCallable) {
