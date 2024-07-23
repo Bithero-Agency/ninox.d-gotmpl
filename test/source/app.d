@@ -497,6 +497,31 @@ Test[] testBuiltins() {
     ];
 }
 
+Test[] testTrim() {
+    return [
+        Test(
+            name: "testTrim_none",
+            content: `  {{"a"}}  `,
+            result: "  a  ",
+        ),
+        Test(
+            name: "testTrim_before",
+            content: `  {{- "a"}}  `,
+            result: "a  ",
+        ),
+        Test(
+            name: "testTrim_after",
+            content: `  {{"a" -}}  `,
+            result: "  a",
+        ),
+        Test(
+            name: "testTrim_around",
+            content: `  {{- "a" -}}  `,
+            result: "a",
+        ),
+    ];
+}
+
 int main(string[] args) {
 
     import std.array : join;
@@ -509,6 +534,7 @@ int main(string[] args) {
         testLoop(),
         testDefine(),
         testBuiltins(),
+        testTrim(),
     ]);
 
     bool isAllOk = true;

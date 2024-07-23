@@ -53,6 +53,7 @@ struct Parser {
     string openDelim = "{{";
     string closeDelim = "}}";
     bool isSubParser = false;
+    bool nextTextTrimStart = false;
 
     pragma(inline)
     private char consumeChar() {
@@ -104,6 +105,13 @@ struct Parser {
     }
 
     private void consumeClose() {
+        auto pos = this.savePos();
+        if (this.consumeChar() == ' ' && this.consumeChar() == '-') {
+            nextTextTrimStart = true;
+        } else {
+            this.jumpTo(pos);
+        }
+
         foreach (ref ch; this.closeDelim) {
             char c = this.consumeChar();
             if (c != ch) {
@@ -114,6 +122,10 @@ struct Parser {
 
     private bool matchClose() {
         auto pos = this.savePos();
+        if (!(this.consumeChar() == ' ' && this.consumeChar() == '-')) {
+            this.jumpTo(pos);
+        }
+
         foreach (ref ch; this.closeDelim) {
             char c;
             if (fread(&c, char.sizeof, 1, this.file) != 1 || c != ch) {
@@ -231,12 +243,12 @@ struct Parser {
             }
 
             char c = this.peekChar();
-            if (c.isSpace) continue;
-            else if (c == '|') {
+            if (c == '|') {
                 fseek(this.file, 1, SEEK_CUR);
                 break;
             }
             else if (c == ')' || this.matchClose()) break;
+            else if (c.isSpace) continue;
 
             throw new ParseTemplateException("Unexpected token in command: '" ~ c ~ "'");
         }
@@ -543,6 +555,13 @@ struct Parser {
                     char c;
                     fread(&c, char.sizeof, 1, this.file);
 
+                    if (this.nextTextTrimStart) {
+                        if (c.isSpace) {
+                            continue;
+                        }
+                        this.nextTextTrimStart = false;
+                    }
+
                     if (curText is null) {
                         curText = new TextNode();
                         *block ~= curText;
@@ -558,7 +577,23 @@ struct Parser {
         while (true) {
             if (!consumeTextUntilOpen()) break;
 
+            this.nextTextTrimStart = false;
+
             auto pos = this.savePos();
+
+            if (this.consumeChar() == '-' && this.consumeChar() == ' ') {
+                pos = this.savePos();
+                // strip end of any last text node
+                if ((*block).length > 0) {
+                    if (auto text = cast(TextNode) (*block)[$-1]) {
+                        import std.string : stripRight;
+                        text.content = text.content.stripRight;
+                    }
+                }
+            } else {
+                this.jumpTo(pos);
+            }
+
             this.skipWs();
             auto id = this.parseIdent();
             switch (id) {
