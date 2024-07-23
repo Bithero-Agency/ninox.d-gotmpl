@@ -2,6 +2,6 @@
 	"fileVersion": 1,
 	"versions": {
 		"ninox-d_gotmpl": {"path":".."},
-		"ninox-d_std": "1.7.4"
+		"ninox-d_std": "1.7.5"
 	}
 }
