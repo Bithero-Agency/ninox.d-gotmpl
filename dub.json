@@ -1,0 +1,17 @@
+{
+	"authors": [
+		"Mai-Lapyst"
+	],
+	"copyright": "Copyright © 2024, Mai-Lapyst",
+	"description": "A dlang template system, compatible with golang templates",
+	"license": "AGPL-3.0-or-later",
+	"name": "ninox-d_gotmpl",
+	"dependencies": {
+		"ninox-d_std:callable": "~>1.7.4",
+		"ninox-d_std:variant": "~>1.7.4",
+		"ninox-d_std:string": "~>1.7.4"
+	},
+	"versions": [
+		"ninox_std_variant_lookupMember"
+	]
+}
