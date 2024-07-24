@@ -190,6 +190,10 @@ class Template {
         auto ret = new Template(this._name);
         ret.block = this.block;
         foreach (ref name, ref tmpl; this.templates) {
+            if (name == this.name) {
+                ret.templates[name] = ret;
+                continue;
+            }
             ret.templates[name] = tmpl;
         }
         ret.globals = this.globals;
