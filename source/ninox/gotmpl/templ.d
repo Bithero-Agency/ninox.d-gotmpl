@@ -180,4 +180,87 @@ class Template {
         }
     }
 
+    /** 
+     * Clones the template;
+     * Does a shallow clone of the AST, but a deeper clone of the declared templates.
+     * 
+     * Returns: The cloned template.
+     */
+    Template clone() {
+        auto ret = new Template(this._name);
+        ret.block = this.block;
+        foreach (ref name, ref tmpl; this.templates) {
+            ret.templates[name] = tmpl;
+        }
+        ret.globals = this.globals;
+        return ret;
+    }
+
+    /** 
+     * Checks if the template's AST is empty,
+     * which means that either the AST holds no nodes or only
+     * text notes which contain only whitespace.
+     * 
+     * Returns: `true` or `false`.
+     */
+    @property bool isEmpty() const {
+        import std.algorithm : all;
+        return this.block is null || this.block.length < 1 || all!("a.isEmpty")(this.block);
+    }
+
+    /** 
+     * Parses a new template content from a string and merges it with the current one.
+     * See `parseFile(FILE*)` for more infos.
+     * 
+     * Params:
+     *   content = The template content to parse.
+     * 
+     * Returns: The current template.
+     */
+    Template parseString(string content) {
+        auto file = fmemopen(content.ptr, content.length, "rb");
+        scope(exit) fclose(file);
+        return this.parseFile(file);
+    }
+
+    /** 
+     * Parses a new template content from file and merges it with the current one.
+     * See `parseFile(FILE*)` for more infos.
+     * 
+     * Params:
+     *   content = The path to the template file to parse.
+     * 
+     * Returns: The current template.
+     */
+    Template parseFile(string filepath) {
+        auto file = fopen(filepath.ptr, "rb");
+        scope(exit) fclose(file);
+        return this.parseFile(file);
+    }
+
+    /** 
+     * Parses a new template content from a libc stream handle and merges it with the current one.
+     * 
+     * The merging is done for the "root" template and all "sub"-templates (created via `define` or `block`).
+     * If the template already has an AST, it is only replaced if the new template is not empty (see `isEmpty`).
+     * 
+     * Params:
+     *   content = The libc stream handle to read from.
+     * 
+     * Returns: The current template.
+     */
+    Template parseFile(FILE* file) {
+        Template nt = Parser().parse(this.name, file);
+        foreach (ref name, ref tmpl; nt.templates) {
+            auto ptr = name in this.templates;
+            if (ptr is null) {
+                this.templates[name] = tmpl;
+            }
+            else if (!nt.isEmpty) {
+                this.templates[name].block = tmpl.block;
+            }
+        }
+        return this;
+    }
+
 }

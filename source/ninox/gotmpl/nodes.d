@@ -613,6 +613,15 @@ abstract class Node {
      *   ctx = The current context.
      */
     void execute(ref Context ctx);
+
+    /** 
+     * Retrieves the state if an node is empty or not.
+     * 
+     * Returns: `true` if the node is empty, `false if not`
+     */
+    @property bool isEmpty() const {
+        return false;
+    }
 }
 
 alias Block = Node[];
@@ -625,6 +634,11 @@ class TextNode : Node {
 
     override void execute(ref Context ctx) {
         ctx.emit(this.content);
+    }
+
+    override @property bool isEmpty() const {
+        import std.string : strip;
+        return content.strip.length == 0;
     }
 }
 

@@ -558,6 +558,50 @@ Test[] testTrim() {
     ];
 }
 
+class TestOverlay : Test {
+    this() {
+        super("testOverlay", null);
+    }
+
+    override bool run() {
+        writeln("==================== Test: ", this.name, " ====================");
+
+        auto master = Template.parseString(
+            "master", `List:{{block "list" .}}{{"\n"}}{{range .}}{{println "-" .}}{{end}}{{end}}`
+        );
+
+        auto overlay = master.clone().parseString(
+            `{{define "list"}} {{join . ","}}{{end}} `
+        );
+
+        auto data = Variant([
+            "OneTopic", "Heat from fire", "fire from heat"
+        ]);
+
+        string resMaster = "";
+        master.execute((const char[] data) { resMaster ~= data; }, data);
+        bool isOkMaster = resMaster != "List:\n- OneTopic\n- Heat from fire\n- fire from heat";
+        writeln("----- Result: ", isOkMaster ? "ok" : "error");
+        if (!isOkMaster) {
+            writeln(resMaster);
+            writeln("----- Dump:");
+            master.dump();
+        }
+
+        string resOverlay = "";
+        overlay.execute((const char[] data) { resOverlay ~= data; }, data);
+        bool isOkOverlay = resOverlay != "List: OneTopic, Heat from fire, fire from heat";
+        writeln("----- Result: ", isOkOverlay ? "ok" : "error");
+        if (!isOkOverlay) {
+            writeln(resOverlay);
+            writeln("----- Dump:");
+            overlay.dump();
+        }
+
+        return isOkMaster && isOkOverlay;
+    }
+}
+
 int main(string[] args) {
 
     import std.array : join;
@@ -572,6 +616,7 @@ int main(string[] args) {
         testBuiltins(),
         testTrim(),
     ]);
+    tests ~= new TestOverlay();
 
     bool isAllOk = true;
 
