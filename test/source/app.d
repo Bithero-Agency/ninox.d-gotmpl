@@ -5,21 +5,51 @@ import ninox.std.variant;
 import ninox.std.traits;
 import ninox.std.callable;
 
-struct Test {
+class Test {
     string name;
     string content;
     Variant data;
     FuncMap globals;
     string result;
 
-    private static void defSetup(ref Test t) {}
-    private static bool defCheck(ref Test t, Template tmpl, string res) => res == t.result;
+    private static void defSetup(Test t) {}
+    private static bool defCheck(Test t, Template tmpl, string res) => res == t.result;
 
-    alias Setup = Callable!(void, RefT!Test);
+    alias Setup = Callable!(void, Test);
     Setup setup = &defSetup;
 
-    alias Check = Callable!(bool, RefT!Test, Template, string);
+    alias Check = Callable!(bool, Test, Template, string);
     Check check = &defCheck;
+
+    this(
+        string name,
+        string content,
+        Variant data = Variant(),
+        FuncMap globals = FuncMap.init,
+        string result = null,
+        Setup setup = &defSetup,
+        Check check = &defCheck,
+    ) {
+        this.name = name;
+        this.content = content;
+        this.data = data;
+        this.globals = globals;
+        this.result = result;
+        this.setup = setup;
+        this.check = check;
+    }
+
+    static Test opCall(
+        string name,
+        string content,
+        Variant data = Variant(),
+        FuncMap globals = FuncMap.init,
+        string result = null,
+        Setup setup = &defSetup,
+        Check check = &defCheck,
+    ) {
+        return new Test(name, content, data, globals, result, setup, check);
+    }
 
     bool run() {
         writeln("==================== Test: ", this.name, " ====================");
@@ -307,7 +337,7 @@ Test[] testDefine() {
         Test(
             name: "testDefine_defineOnly",
             content: "{{define \"a\"}}b{{end}}",
-            check: Test.Check((ref Test t, Template tmpl, string _) {
+            check: Test.Check((Test t, Template tmpl, string _) {
                 auto a = tmpl.getTemplate("a");
                 import ninox.gotmpl.nodes : TextNode;
                 return a !is null
@@ -350,10 +380,10 @@ Test[] testBuiltins() {
                     return t;
                 }),
             ],
-            setup: Test.Setup((ref Test test) {
+            setup: Test.Setup((Test test) {
                 tmp = 1;
             }),
-            check: Test.Check((ref Test test, Template tmpl, string res) {
+            check: Test.Check((Test test, Template tmpl, string res) {
                 return res == "1" && tmp == 2;
             }),
         ),
@@ -370,10 +400,10 @@ Test[] testBuiltins() {
                     return t;
                 }),
             ],
-            setup: Test.Setup((ref Test test) {
+            setup: Test.Setup((Test test) {
                 tmp = 1;
             }),
-            check: Test.Check((ref Test test, Template tmpl, string res) {
+            check: Test.Check((Test test, Template tmpl, string res) {
                 return res == "true" && tmp == 3;
             }),
         ),
@@ -389,10 +419,10 @@ Test[] testBuiltins() {
                     return t;
                 }),
             ],
-            setup: Test.Setup((ref Test test) {
+            setup: Test.Setup((Test test) {
                 tmp = 1;
             }),
-            check: Test.Check((ref Test test, Template tmpl, string res) {
+            check: Test.Check((Test test, Template tmpl, string res) {
                 return res == "2" && tmp == 3;
             }),
         ),
@@ -406,10 +436,10 @@ Test[] testBuiltins() {
                     return t;
                 }),
             ],
-            setup: Test.Setup((ref Test test) {
+            setup: Test.Setup((Test test) {
                 tmp = 0;
             }),
-            check: Test.Check((ref Test test, Template tmpl, string res) {
+            check: Test.Check((Test test, Template tmpl, string res) {
                 return res == "0" && tmp == 1;
             }),
         ),
