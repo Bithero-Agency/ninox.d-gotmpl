@@ -256,7 +256,7 @@ class Template {
             if (ptr is null) {
                 this.templates[name] = tmpl;
             }
-            else if (!nt.isEmpty) {
+            else if (!tmpl.isEmpty) {
                 this.templates[name].block = tmpl.block;
             }
         }
