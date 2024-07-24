@@ -186,6 +186,17 @@ struct Printer {
             log("BreakNode");
         } else if (cast(ContinueNode) node) {
             log("ContinueNode");
+        } else if (auto call = cast(TemplateCallNode) node) {
+            indent(); write("TemplateCallNode name: \"", call.name, "\"");
+            if (call.pipeline !is null) {
+                write(", pipeline: {\n");
+                lvl++;
+                visit(call.pipeline);
+                lvl--;
+                log("}");
+            } else {
+                write("\n");
+            }
         } else {
             log("UNKNOWN NODE");
         }
