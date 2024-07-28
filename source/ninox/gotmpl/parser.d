@@ -614,8 +614,10 @@ struct Parser {
                     subParse.openDelim = this.openDelim;
                     subParse.closeDelim = this.closeDelim;
                     subParse.isSubParser = true;
+                    subParse.nextTextTrimStart = this.nextTextTrimStart;
                     auto subTmpl = subParse.parse((cast(StringExpr) nameExpr).content, this.file);
                     ret.templates[subTmpl.name] = subTmpl;
+                    this.nextTextTrimStart = subParse.nextTextTrimStart;
 
                     *block ~= new TemplateCallNode(
                         (cast(StringExpr)nameExpr).content,
@@ -639,8 +641,10 @@ struct Parser {
                     subParse.openDelim = this.openDelim;
                     subParse.closeDelim = this.closeDelim;
                     subParse.isSubParser = true;
+                    subParse.nextTextTrimStart = this.nextTextTrimStart;
                     auto subTmpl = subParse.parse((cast(StringExpr) nameExpr).content, this.file);
                     ret.templates[subTmpl.name] = subTmpl;
+                    this.nextTextTrimStart = subParse.nextTextTrimStart;
                     break;
                 }
                 case "template": {
