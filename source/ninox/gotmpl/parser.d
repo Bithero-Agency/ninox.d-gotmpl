@@ -146,6 +146,21 @@ struct Parser {
             if (c == ' ' || c == '\t' || c == '\r' || c == '\n') {
                 continue;
             }
+
+            if (c == '-') {
+                char[] tryDelim = new char[ this.closeDelim.length ];
+                auto pos = this.savePos() - 1;
+                if (
+                    fread(cast(void*) tryDelim.ptr, char.sizeof, tryDelim.length, this.file) != tryDelim.length
+                    || tryDelim != this.closeDelim
+                ) {
+                    this.jumpTo(pos);
+                    return;
+                }
+                this.jumpTo(pos - 1);
+                return;
+            }
+
             fseek(this.file, -1, SEEK_CUR);
             return;
         }
