@@ -509,10 +509,14 @@ struct Parser {
     }
 
     Template parse(string name, FILE* file) {
+        auto ret = new Template(name);
+        this.parse(ret, file);
+        return ret;
+    }
+
+    void parse(Template ret, FILE* file) {
         this.file = file;
         scope(exit) this.file = null;
-
-        auto ret = new Template(name);
 
         int rangeDepth = 0;
         TextNode curText = null;
@@ -615,7 +619,10 @@ struct Parser {
                     subParse.closeDelim = this.closeDelim;
                     subParse.isSubParser = true;
                     subParse.nextTextTrimStart = this.nextTextTrimStart;
-                    auto subTmpl = subParse.parse((cast(StringExpr) nameExpr).content, this.file);
+
+                    auto subTmpl = ret.createNew((cast(StringExpr) nameExpr).content);
+                    subParse.parse(subTmpl, this.file);
+
                     ret.templates[subTmpl.name] = subTmpl;
                     this.nextTextTrimStart = subParse.nextTextTrimStart;
 
@@ -642,7 +649,10 @@ struct Parser {
                     subParse.closeDelim = this.closeDelim;
                     subParse.isSubParser = true;
                     subParse.nextTextTrimStart = this.nextTextTrimStart;
-                    auto subTmpl = subParse.parse((cast(StringExpr) nameExpr).content, this.file);
+
+                    auto subTmpl = ret.createNew((cast(StringExpr) nameExpr).content);
+                    subParse.parse(subTmpl, this.file);
+
                     ret.templates[subTmpl.name] = subTmpl;
                     this.nextTextTrimStart = subParse.nextTextTrimStart;
                     break;
@@ -778,7 +788,7 @@ struct Parser {
         }
 
         ret.templates[ret.name] = ret;
-        return ret;
+        return;
     }
 
 }

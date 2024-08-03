@@ -44,6 +44,10 @@ private alias EmitVariants = AliasSeq!(
 
 alias FuncMap = Variant[string];
 
+private class Common {
+    FuncMap globals;
+}
+
 class Template {
 
     package(ninox.gotmpl) {
@@ -52,10 +56,18 @@ class Template {
     }
 
     Block block;
-    FuncMap globals;
+
+    Common common;
+    alias common this;
 
     this(string name) {
         this._name = name;
+        this.common = new Common();
+    }
+
+    private this(string name, Common c) {
+        this._name = name;
+        this.common = c;
     }
 
     /** 
@@ -201,6 +213,18 @@ class Template {
     }
 
     /** 
+     * Creates a new sub-template.
+     * 
+     * Params:
+     *   name = The name of the sub template.
+     * 
+     * Returns: The newly created template.
+     */
+    pragma(inline) Template createNew(string name) {
+        return new Template(name, this.common);
+    }
+
+    /** 
      * Checks if the template's AST is empty,
      * which means that either the AST holds no nodes or only
      * text notes which contain only whitespace.
@@ -254,7 +278,8 @@ class Template {
      * Returns: The current template.
      */
     Template parseFile(FILE* file) {
-        Template nt = Parser().parse(this.name, file);
+        auto nt = new Template(this.name, this.common);
+        Parser().parse(nt, file);
         foreach (ref name, ref tmpl; nt.templates) {
             auto ptr = name in this.templates;
             if (ptr is null) {

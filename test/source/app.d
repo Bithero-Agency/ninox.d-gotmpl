@@ -363,6 +363,16 @@ Test[] testDefine() {
             content: "{{block \"a\" 12}}{{.}}{{end}}",
             result: "12",
         ),
+        Test(
+            name: "testBlock_withFunc",
+            content: `{{block "a" 12}}{{mul . 2}}{{end}}`,
+            result: "24",
+            globals: [
+                "mul": Variant((size_t a, size_t b) {
+                    return a * b;
+                }),
+            ],
+        ),
     ];
 }
 
