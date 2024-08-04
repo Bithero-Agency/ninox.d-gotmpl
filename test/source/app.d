@@ -359,6 +359,11 @@ Test[] testDefine() {
             result: "12 12",
         ),
         Test(
+            name: "testDefine_multi",
+            content: `{{define "T1"}}ONE{{end}}{{define "T2"}}TWO{{end}}{{define "T3"}}{{template "T1"}} {{template "T2"}}{{end}}{{template "T3"}}`,
+            result: "ONE TWO",
+        ),
+        Test(
             name: "testBlock",
             content: "{{block \"a\" 12}}{{.}}{{end}}",
             result: "12",

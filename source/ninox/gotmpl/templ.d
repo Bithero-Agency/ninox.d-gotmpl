@@ -46,13 +46,13 @@ alias FuncMap = Variant[string];
 
 private class Common {
     FuncMap globals;
+    Template[string] templates;
 }
 
 class Template {
 
     package(ninox.gotmpl) {
         string _name;
-        Template[string] templates;
     }
 
     Block block;
